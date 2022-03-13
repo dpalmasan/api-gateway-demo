@@ -1,117 +1,181 @@
 {
-  "version": 2,
-  "extra_config": {
-    "github_com/devopsfaith/krakend-gologging": {
-      "level": "DEBUG",
-      "prefix": "[KRAKEND]",
-      "syslog": false,
-      "stdout": true,
-      "format": "logstash"
-    },
-    "github_com/devopsfaith/krakend-logstash": {
-      "enabled": true
-    }
-  },
-  "timeout": "3000ms",
-  "cache_ttl": "300s",
-  "output_encoding": "json",
-  "name": "api-gateway",
-  "port": 8888,
-  "endpoints": [
-    {
-      "endpoint": "/login",
-      "method": "POST",
-      "output_encoding": "no-op",
-      "extra_config": {
-        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
-          "maxRate": 0,
-          "clientMaxRate": 30,
-          "strategy": "ip"
-        }
-      },
-      "backend": [
-        {
-          "url_pattern": "/jwt",
-          "encoding": "no-op",
-          "sd": "static",
-          "method": "POST",
-          "host": [
-            "localhost:4000"
-          ],
-          "disable_host_sanitize": false
-        }
-      ]
-    },
-    {
-      "endpoint": "/posts/{post_id}",
-      "headers_to_pass": [
-        "Cookie"
-      ],
-      "method": "GET",
-      "output_encoding": "json",
-      "extra_config": {
-        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
-          "maxRate": 0,
-          "clientMaxRate": 3,
-          "strategy": "ip"
+    "version": 3,
+    "extra_config": {
+        "github_com/devopsfaith/krakend-gologging": {
+            "level": "DEBUG",
+            "prefix": "[KRAKEND]",
+            "syslog": false,
+            "stdout": true,
+            "format": "logstash"
         },
-        "github.com/devopsfaith/krakend/proxy": {
-          "sequential": true
+        "github_com/devopsfaith/krakend-logstash": {
+            "enabled": true
         }
-      },
-      "backend": [
+    },
+    "timeout": "3000ms",
+    "cache_ttl": "300s",
+    "output_encoding": "json",
+    "name": "api-gateway",
+    "port": 8080,
+    "endpoints": [
         {
-          "url_pattern": "/posts/{post_id}",
-          "encoding": "json",
-          "sd": "static",
-          "method": "GET",
-          "disable_host_sanitize": false,
-          "host": [
-            "localhost:8000"
-          ]
+            "endpoint": "/login",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/jwt",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-svc-auth-service.auth-svc.svc.cluster.local:4000"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
         },
         {
-          "url_pattern": "/metrics?id={resp0__id}&text={resp0_body}",
-          "encoding": "json",
-          "sd": "static",
-          "method": "GET",
-          "host": [
-            "localhost:6000"
-          ],
-          "disable_host_sanitize": false,
-          "is_collection": true,
-          "mapping": {
-            "collection": "metrics"
-          }
-        }
-      ]
-    },
-    {
-      "endpoint": "/posts",
-      "headers_to_pass": [
-        "Cookie"
-      ],
-      "method": "GET",
-      "output_encoding": "json",
-      "extra_config": {
-        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
-          "maxRate": 0,
-          "clientMaxRate": 3,
-          "strategy": "ip"
-        }
-      },
-      "backend": [
+            "endpoint": "/register",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/register",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "http://auth-svc-auth-service.auth-svc.svc.cluster.local:4000"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
+        },
         {
-          "url_pattern": "/posts",
-          "encoding": "json",
-          "sd": "static",
-          "method": "GET",
-          "disable_host_sanitize": false,
-          "host": [
-            "localhost:8000"
-          ]
+            "endpoint": "/posts",
+            "headers_to_pass": [
+                "Cookie"
+            ],
+            "method": "POST",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "./jwks.json",
+                    "cache": true,
+                    "roles_key": "department",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "admin"
+                    ],
+                    "cookie_key": "access_token",
+                    "disable_jwk_security": true,
+                    "operation_debug": true
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "POST",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/posts",
+            "headers_to_pass": [
+                "Cookie"
+            ],
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/posts/{post_id}",
+            "headers_to_pass": [
+                "Cookie"
+            ],
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                },
+                "github.com/devopsfaith/krakend/proxy": {
+                    "sequential": true
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts/{post_id}",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                    ]
+                },
+                {
+                    "url_pattern": "/metrics?id={resp0__id}&text={resp0_body}",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "http://textstat-svc-textstat-service.textstat-svc.svc.cluster.local:6000"
+                    ],
+                    "disable_host_sanitize": false,
+                    "is_collection": true,
+                    "mapping": {
+                        "collection": "metrics"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
