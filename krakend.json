@@ -127,6 +127,7 @@
                     "roles_key": "role",
                     "roles_key_is_nested": false,
                     "roles": [
+                        "regular",
                         "admin"
                     ],
                     "cookie_key": "access_token",
