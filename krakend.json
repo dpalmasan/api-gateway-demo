@@ -81,11 +81,12 @@
                 },
                 "auth/validator": {
                     "alg": "RS256",
-                    "jwk_local_path": "./jwks.json",
-                    "cache": true,
-                    "roles_key": "department",
+                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "cache": false,
+                    "roles_key": "role",
                     "roles_key_is_nested": false,
                     "roles": [
+                        "regular",
                         "admin"
                     ],
                     "cookie_key": "access_token",
@@ -118,6 +119,19 @@
                     "maxRate": 0,
                     "clientMaxRate": 3,
                     "strategy": "ip"
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "cache": false,
+                    "roles_key": "role",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "admin"
+                    ],
+                    "cookie_key": "access_token",
+                    "disable_jwk_security": true,
+                    "operation_debug": true
                 }
             },
             "backend": [
@@ -148,6 +162,20 @@
                 },
                 "github.com/devopsfaith/krakend/proxy": {
                     "sequential": true
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "cache": false,
+                    "roles_key": "role",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "regular",
+                        "admin"
+                    ],
+                    "cookie_key": "access_token",
+                    "disable_jwk_security": true,
+                    "operation_debug": true
                 }
             },
             "backend": [

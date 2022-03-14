@@ -1,0 +1,13 @@
+apiVersion: v1
+description: Blog App Api-gateway exmaple
+name: blog-api-gateway
+version: 0.1.0
+keywords:
+- api-gateway
+home: https://github.com/dpalmasan/api-gateway-demo
+sources:
+- https://github.com/dpalmasan/api-gateway-demo
+maintainers:
+- name: Diego Palma
+  url: https://github.com/dpalmasan
+engine: gotpl
