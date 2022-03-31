@@ -1,2 +1,4 @@
 # To not leak JWKs
 jwks.json
+*.so
+.vscode
