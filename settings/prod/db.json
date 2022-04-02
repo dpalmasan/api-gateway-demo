@@ -1,0 +1,8 @@
+{
+    "auth_svc_host": "http://auth-svc-auth-service.auth-svc.svc.cluster.local",
+    "auth_svc_port": 4000,
+    "blog_svc_host": "http://blog-svc-blog-service.blog-svc.svc.cluster.local",
+    "blog_svc_port": 8000,
+    "textstat_svc_host": "http://textstat-svc-textstat-service.textstat-svc.svc.cluster.local",
+    "textstat_svc_port": 6000
+}

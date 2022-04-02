@@ -12,6 +12,10 @@
             "enabled": true
         }
     },
+    "plugin": {
+        "pattern": ".so",
+        "folder": "./jwt_revoked_checker"
+    },
     "timeout": "15s",
     "cache_ttl": "300s",
     "output_encoding": "json",
@@ -36,7 +40,41 @@
                     "sd": "static",
                     "method": "POST",
                     "host": [
-                        "http://auth-svc-auth-service.auth-svc.svc.cluster.local:4000"
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
+        },
+        {
+            "endpoint": "/refresh",
+            "input_headers": [
+                "Cookie",
+                "Authorization"
+            ],
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                },
+                "plugin/req-resp-modifier": {
+                    "name": [
+                        "auth-access-check-request",
+                        "auth-access-check-response"
+                    ]
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/refresh",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
                     ],
                     "disable_host_sanitize": false
                 }
@@ -60,7 +98,7 @@
                     "sd": "static",
                     "method": "POST",
                     "host": [
-                        "http://auth-svc-auth-service.auth-svc.svc.cluster.local:4000"
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
                     ],
                     "disable_host_sanitize": false
                 }
@@ -102,7 +140,7 @@
                     "method": "POST",
                     "disable_host_sanitize": false,
                     "host": [
-                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
                     ]
                 }
             ]
@@ -143,7 +181,7 @@
                     "method": "GET",
                     "disable_host_sanitize": false,
                     "host": [
-                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
                     ]
                 }
             ]
@@ -187,7 +225,7 @@
                     "method": "GET",
                     "disable_host_sanitize": false,
                     "host": [
-                        "http://blog-svc-blog-service.blog-svc.svc.cluster.local:8000"
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
                     ]
                 },
                 {
@@ -196,7 +234,7 @@
                     "sd": "static",
                     "method": "GET",
                     "host": [
-                        "http://textstat-svc-textstat-service.textstat-svc.svc.cluster.local:6000"
+                        "{{ .db.textstat_svc_host }}:{{ .db.textstat_svc_port }}"
                     ],
                     "disable_host_sanitize": false,
                     "is_collection": false
