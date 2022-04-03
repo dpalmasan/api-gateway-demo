@@ -50,7 +50,8 @@
             "endpoint": "/refresh",
             "input_headers": [
                 "Cookie",
-                "Authorization"
+                "Authorization",
+                "Content-Type"
             ],
             "method": "POST",
             "output_encoding": "no-op",
@@ -108,7 +109,8 @@
             "endpoint": "/posts",
             "input_headers": [
                 "Cookie",
-                "Authorization"
+                "Authorization",
+                "Content-Type"
             ],
             "method": "POST",
             "output_encoding": "json",
@@ -120,7 +122,7 @@
                 },
                 "auth/validator": {
                     "alg": "RS256",
-                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
                     "cache": false,
                     "roles_key": "role",
                     "roles_key_is_nested": false,
@@ -130,6 +132,12 @@
                     ],
                     "disable_jwk_security": true,
                     "operation_debug": true
+                },
+                "plugin/req-resp-modifier": {
+                    "name": [
+                        "auth-access-check-request",
+                        "auth-access-check-response"
+                    ]
                 }
             },
             "backend": [
@@ -141,7 +149,14 @@
                     "disable_host_sanitize": false,
                     "host": [
                         "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
-                    ]
+                    ],
+                    "extra_config": {
+                        "plugin/req-resp-modifier": {
+                            "name": [
+                                "auth-access-check-request"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -160,7 +175,7 @@
                 },
                 "auth/validator": {
                     "alg": "RS256",
-                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
                     "cache": false,
                     "roles_key": "role",
                     "roles_key_is_nested": false,
@@ -204,7 +219,7 @@
                 },
                 "auth/validator": {
                     "alg": "RS256",
-                    "jwk_local_path": "/etc/krakend/jwks.json",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
                     "cache": false,
                     "roles_key": "role",
                     "roles_key_is_nested": false,
