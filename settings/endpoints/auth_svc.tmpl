@@ -1,0 +1,83 @@
+{
+            "endpoint": "/login",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/jwt",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
+        },
+        {
+            "endpoint": "/refresh",
+            "input_headers": [
+                "Cookie",
+                "Authorization",
+                "Content-Type"
+            ],
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                },
+                "plugin/req-resp-modifier": {
+                    "name": [
+                        "auth-access-check-request",
+                        "auth-access-check-response"
+                    ]
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/refresh",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
+        },
+        {
+            "endpoint": "/register",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 30,
+                    "strategy": "ip"
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/session/register",
+                    "encoding": "no-op",
+                    "sd": "static",
+                    "method": "POST",
+                    "host": [
+                        "{{ .db.auth_svc_host }}:{{ .db.auth_svc_port }}"
+                    ],
+                    "disable_host_sanitize": false
+                }
+            ]
+        }

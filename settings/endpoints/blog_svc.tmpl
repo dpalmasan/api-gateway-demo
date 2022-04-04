@@ -1,0 +1,151 @@
+{
+            "endpoint": "/posts",
+            "input_headers": [
+                "Cookie",
+                "Authorization",
+                "Content-Type"
+            ],
+            "method": "POST",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
+                    "cache": false,
+                    "roles_key": "role",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "regular",
+                        "admin"
+                    ],
+                    "disable_jwk_security": true,
+                    "operation_debug": true
+                },
+                "plugin/req-resp-modifier": {
+                    "name": [
+                        "auth-access-check-request",
+                        "auth-access-check-response"
+                    ]
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "POST",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
+                    ],
+                    "extra_config": {
+                        "plugin/req-resp-modifier": {
+                            "name": [
+                                "auth-access-check-request"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/posts",
+            "headers_to_pass": [
+                "Cookie"
+            ],
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
+                    "cache": false,
+                    "roles_key": "role",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "regular",
+                        "admin"
+                    ],
+                    "cookie_key": "access_token",
+                    "disable_jwk_security": true,
+                    "operation_debug": true
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
+                    ]
+                }
+            ]
+        },
+        {
+            "endpoint": "/posts/{post_id}",
+            "headers_to_pass": [
+                "Cookie"
+            ],
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+                    "maxRate": 0,
+                    "clientMaxRate": 3,
+                    "strategy": "ip"
+                },
+                "github.com/devopsfaith/krakend/proxy": {
+                    "sequential": true
+                },
+                "auth/validator": {
+                    "alg": "RS256",
+                    "jwk_local_path": "{{ .db.jwk_local_path }}",
+                    "cache": false,
+                    "roles_key": "role",
+                    "roles_key_is_nested": false,
+                    "roles": [
+                        "regular",
+                        "admin"
+                    ],
+                    "cookie_key": "access_token",
+                    "disable_jwk_security": true,
+                    "operation_debug": true
+                }
+            },
+            "backend": [
+                {
+                    "url_pattern": "/posts/{post_id}",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "disable_host_sanitize": false,
+                    "host": [
+                        "{{ .db.blog_svc_host }}:{{ .db.blog_svc_port }}"
+                    ]
+                },
+                {
+                    "url_pattern": "/metrics?id={resp0__id}&text={resp0_body}",
+                    "encoding": "json",
+                    "sd": "static",
+                    "method": "GET",
+                    "host": [
+                        "{{ .db.textstat_svc_host }}:{{ .db.textstat_svc_port }}"
+                    ],
+                    "disable_host_sanitize": false,
+                    "is_collection": false
+                }
+            ]
+        }
